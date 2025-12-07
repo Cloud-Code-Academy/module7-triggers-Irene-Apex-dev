@@ -1,31 +1,41 @@
-trigger AccountTrigger on Account (before insert) {
+trigger AccountTrigger on Account (before insert, after insert) {
 
-    for (Account account : Trigger.new) {
+    if (Trigger.isBefore)
 
-        if (Trigger.isBefore && account.Type == null) {
-            account.Type = 'Prospect';
-        } 
+        for (Account account : Trigger.new) {
 
-        if (Trigger.isBefore && (account.ShippingStreet != null || account.ShippingPostalCode != null || account.ShippingCity != null || account.ShippingCountry != null)) {
-            account.BillingStreet = account.ShippingStreet;
-            account.BillingPostalCode = account.ShippingPostalCode;
-            account.BillingCity = account.ShippingCity;
-            account.BillingState = account.ShippingState;
-            account.BillingCountry = account.ShippingCountry;
+            if (account.Type == null) {
+                account.Type = 'Prospect';
+            } 
+
+            if (account.ShippingStreet != null || account.ShippingPostalCode != null || account.ShippingCity != null || account.ShippingCountry != null) {
+                account.BillingStreet = account.ShippingStreet;
+                account.BillingPostalCode = account.ShippingPostalCode;
+                account.BillingCity = account.ShippingCity;
+                account.BillingState = account.ShippingState;
+                account.BillingCountry = account.ShippingCountry;
+            }
+
+            if (account.Phone != null && account.Website != null && account.Fax != null) {
+                account.Rating = 'Hot';
+            }
+
         }
 
-        if (Trigger.isBefore && account.Phone != null && account.Website != null && account.Fax != null) {
-            account.Rating = 'Hot';
-        }
+    if (Trigger.isAfter) {
 
-        if (Trigger.isAfter) {
+        List<Contact> contacts = new List<Contact>();
+
+        for (Account account : Trigger.new) {
             Contact contact = new Contact();
-            contact.Id = account.Id;
+            contact.AccountId = account.Id;
             contact.LastName = 'DefaultContact';
             contact.Email = 'default@email.com';
-            insert contact;
+            contacts.add(contact);
         }
 
-    }
+        insert contacts;
+
+    }  
 
 }
