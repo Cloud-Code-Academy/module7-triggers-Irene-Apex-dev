@@ -22,6 +22,7 @@ trigger AccountTrigger on Account (before insert, after insert) {
 
         }
 
+        
     if (Trigger.isAfter) {
 
         List<Contact> contacts = new List<Contact>();
@@ -37,5 +38,4 @@ trigger AccountTrigger on Account (before insert, after insert) {
         insert contacts;
 
     }  
-
 }
